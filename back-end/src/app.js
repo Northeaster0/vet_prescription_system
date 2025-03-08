@@ -17,7 +17,7 @@ app.use(express.json());
 // Rotalar
 app.use('/api/auth', authRoutes);
 app.use('/api/prescriptions', prescriptionRoutes);
-app.use('/api/medications', medicationRoutes);
+app.use("/api/medications", medicationRoutes);
 
 // **Ana dizine (`/`) girildiğinde otomatik yönlendirme yap**
 app.get('/', (req, res) => {

@@ -28,7 +28,7 @@ router.get('/:id', authenticateToken, getPrescriptionById);
 router.put('/update/:id', authenticateToken, updatePrescription);
 
 // Reçete silme
-router.delete('/delete/:id', authenticateToken, deletePrescription);
+router.delete("/:id", authenticateToken, deletePrescription);
 
 // Tüm ilaçları listeleme (Stokları görüntüleme)
 router.get('/medications', authenticateToken, getAllMedications); // ✅ Yeni route eklendi

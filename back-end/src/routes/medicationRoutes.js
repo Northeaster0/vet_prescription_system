@@ -66,16 +66,4 @@ router.put("/decrease/:name", authenticateToken, async (req, res) => {
         res.status(500).json({ message: "Stok azaltma hatası.", error: error.message });
     }
 });
-// Stok azaltma endpointi
-router.put("/decrease/:name", authenticateToken, async (req, res) => {
-    try {
-        const { name } = req.params;
-        await db.query("UPDATE medications SET stock = GREATEST(stock - 1, 0) WHERE name = ?", [name]);
-        res.status(200).json({ message: "Stok 1 azaltıldı." });
-    } catch (error) {
-        console.error("🛑 Stok azaltma hatası:", error);
-        res.status(500).json({ message: "Stok azaltılırken hata oluştu." });
-    }
-});
-
 module.exports = router;

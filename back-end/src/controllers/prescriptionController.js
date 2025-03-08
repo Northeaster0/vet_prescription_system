@@ -1,29 +1,35 @@
 const db = require('../models/db');
 
-// Yeni reçete oluşturma
+
 const createPrescription = async (req, res) => {
     const { patient_name, diagnosis, medication, dosage, duration } = req.body;
     const user_id = req.user.id; // JWT ile doğrulanmış kullanıcıdan gelen ID
 
     try {
-        const [med] = await db.query("SELECT stock FROM medications WHERE name = ?", [medication]);
+        // 📌 İlaç adını kullanarak ilacı veritabanında bul
+        const [med] = await db.query(
+            "SELECT name, stock FROM medications WHERE LOWER(name) = LOWER(?)",
+            [medication]
+        );
 
         if (!med.length) {
             return res.status(400).json({ message: "İlaç bulunamadı, lütfen doğru ismi giriniz." });
         }
 
         if (med[0].stock <= 0) {
-            return res.status(400).json({ message: "Bu ilaç stokta kalmamış." });
+            return res.status(400).json({ message: "Bu ilaç stokta yok." });
         }
 
+        // 📌 Reçeteyi veritabanına ekle
         const [result] = await db.query(
             "INSERT INTO prescriptions (user_id, patient_name, diagnosis, medication, dosage, duration) VALUES (?, ?, ?, ?, ?, ?)",
-            [user_id, patient_name, diagnosis, medication, dosage, duration]
+            [user_id, patient_name, diagnosis, med[0].name, dosage, duration]
         );
 
+        // 📌 Stoktan 1 azalt
         await db.query(
             "UPDATE medications SET stock = stock - 1 WHERE name = ? AND stock > 0",
-            [medication]
+            [med[0].name]
         );
 
         res.status(201).json({ 
@@ -37,6 +43,7 @@ const createPrescription = async (req, res) => {
         res.status(500).json({ message: "Reçete eklenirken hata oluştu.", error: error.message });
     }
 };
+
 
 // Kullanıcının kendi reçetelerini listeleme
 const getPrescriptions = async (req, res) => {
